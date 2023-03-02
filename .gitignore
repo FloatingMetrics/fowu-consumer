@@ -1,0 +1,18 @@
+# ItelliJ
+.idea/
+*.iml
+*.iws
+
+# Mac
+.DS_Store
+
+# Maven
+log/
+target/
+
+# Vertx
+.vertx
+
+# Other
+build/
+*.swp
