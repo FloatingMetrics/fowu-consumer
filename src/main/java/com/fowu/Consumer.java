@@ -2,11 +2,6 @@ package com.fowu;
 
 import io.vertx.core.Vertx;
 import io.vertx.kafka.client.consumer.KafkaConsumer;
-import io.vertx.kafka.client.consumer.KafkaConsumerRecord;
-import io.vertx.kafka.client.consumer.KafkaConsumerRecords;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-
 import java.time.Duration;
 import java.util.Properties;
 
@@ -30,13 +25,8 @@ public class Consumer {
     // Subscribe to topic
     consumer
       .subscribe(topicName)
-      .onSuccess(v -> {
-        System.out.println("subscribed");
-        // Optional: Poll at set interval (instead of using handler!)
-      })
+      .onSuccess(v -> System.out.println("subscribed"))
       .onFailure(cause -> System.out.println("Could not subscribe " + cause.getMessage()));
 
-    // Process messages
-//    for (ConsumerRecord<String, String> record : records)
   }
 }
