@@ -21,7 +21,8 @@ public class PropertiesHelper {
 
     Properties props = null;
     //try to load the file config.properties
-    try (InputStream input = Consumer.class.getClassLoader().getResourceAsStream("config.properties")) {
+    try (InputStream input = Consumer.class.getClassLoader().getResourceAsStream("configuration" +
+                                                                                 ".properties")) {
 
       props = new Properties();
 
