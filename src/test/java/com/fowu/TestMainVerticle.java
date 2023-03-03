@@ -1,5 +1,6 @@
-package com.fowu.fowu_consumer;
+package com.fowu;
 
+import com.fowu.MainVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;

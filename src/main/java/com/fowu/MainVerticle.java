@@ -1,4 +1,4 @@
-package com.fowu.fowu_consumer;
+package com.fowu;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
