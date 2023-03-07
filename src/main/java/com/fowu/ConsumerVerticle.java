@@ -1,48 +1,74 @@
 package com.fowu;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Vertx;
+import io.vertx.core.CompositeFuture;
+import io.vertx.core.Future;
+import io.vertx.core.Promise;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.jdbc.JDBCClient;
+import io.vertx.ext.sql.UpdateResult;
 import io.vertx.kafka.client.consumer.KafkaConsumer;
 import io.vertx.kafka.client.consumer.KafkaConsumerRecord;
+import io.vertx.kafka.client.consumer.KafkaConsumerRecords;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
+import java.util.stream.IntStream;
+
+import static java.util.stream.Collectors.toList;
+
 
 public class ConsumerVerticle extends AbstractVerticle {
   private final String topicName = "weather";
-  private final int TIME_OUT_MS = 1000;
   private final int POLL_MS = 100;
 
   @Override
   public void start() throws Exception {
     Properties props = PropertiesHelper.getProperties();
     KafkaConsumer<String, JsonObject> consumer = KafkaConsumer.create(vertx, props);
+    JsonObject datasourceConfig = PropertiesHelper.getDatasourceProperties();
+    JDBCClient jdbc = JDBCClient.create(vertx, datasourceConfig);
 
     consumer.subscribe(topicName).onSuccess(v -> {
       System.out.println("Consumer subscribed");
-      poll(consumer);
+      poll(jdbc, consumer);
     });
-
   }
 
-  private void poll(KafkaConsumer<String, JsonObject> consumer) {
-    // Let's poll every second
-    vertx.setPeriodic(TIME_OUT_MS,
-                      timerId -> consumer.poll(Duration.ofMillis(POLL_MS)).onSuccess(records -> {
-                        for (int i = 0; i < records.size(); i++) {
-                          KafkaConsumerRecord<String, JsonObject> record = records.recordAt(i);
-                          System.out.println(
-                            "key=" + record.key() + ",value=" + record.value() + ",partition=" +
-                            record.partition() + ",timestamp=" + record.timestamp() + ",offset=" + record.offset());
-                        }
-                      }).onFailure(cause -> {
-                        System.out.println(
-                          "Something went wrong when polling " + cause.toString());
-                        cause.printStackTrace();
+  private void poll(JDBCClient jdbc,
+                    KafkaConsumer<String, JsonObject> consumer) {
+    Promise<KafkaConsumerRecords<String, JsonObject>> pollPromise = Promise.promise();
+    consumer.poll(Duration.ofMillis(POLL_MS), pollPromise);
 
-                        // Stop polling if something went wrong
-                        vertx.cancelTimer(timerId);
-                      }));
+    pollPromise.future().compose(records -> {
+      List<Future<UpdateResult>> futures =
+        IntStream.range(0, records.size()).mapToObj(records::recordAt)
+                 .map(record -> persist(jdbc, record)).collect(toList());
+
+      return CompositeFuture.all(new ArrayList<>(futures));
+    }).compose(composite -> {
+      Promise<Void> commitPromise = Promise.promise();
+      consumer.commit(commitPromise);
+      return commitPromise.future();
+    }).onSuccess(any -> {
+      System.out.println("All messages persisted and committed");
+      poll(jdbc, consumer);
+    }).onFailure(cause -> System.err.println("Error persisting and committing messages: " + cause));
+  }
+
+  private Future<UpdateResult> persist(JDBCClient jdbc,
+                                       KafkaConsumerRecord<String, JsonObject> record) {
+    Promise<UpdateResult> promise = Promise.promise();
+    JsonArray params = toParams(record);
+    jdbc.updateWithParams("insert or update query to persist record", params, promise);
+    return promise.future();
+  }
+
+  private JsonArray toParams(KafkaConsumerRecord<String, JsonObject> record) {
+    // TODO: convert the record into params for the sql command
+    return null;
   }
 }
