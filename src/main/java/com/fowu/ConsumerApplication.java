@@ -1,7 +1,10 @@
 package com.fowu;
 
+import io.vertx.core.Vertx;
+
 public class ConsumerApplication {
-  public static void main(String[] args) throws Exception {
-    new Consumer().run("weather");
+  public static void main(String[] args) {
+    Vertx vertx = Vertx.vertx();
+    vertx.deployVerticle(new ConsumerVerticle());
   }
 }
