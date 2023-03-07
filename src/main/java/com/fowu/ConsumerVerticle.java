@@ -17,7 +17,6 @@ public class ConsumerVerticle extends AbstractVerticle {
   @Override
   public void start() throws Exception {
     Properties props = PropertiesHelper.getProperties();
-    Vertx vertx = Vertx.vertx();
     KafkaConsumer<String, JsonObject> consumer = KafkaConsumer.create(vertx, props);
 
     consumer.subscribe(topicName).onSuccess(v -> {
