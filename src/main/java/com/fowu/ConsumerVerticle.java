@@ -38,32 +38,48 @@ public class ConsumerVerticle extends AbstractVerticle {
     });
   }
 
-  private void poll(JDBCClient jdbc,
-                    KafkaConsumer<String, JsonObject> consumer) {
+  private void poll(JDBCClient jdbc, KafkaConsumer<String, JsonObject> consumer) {
+    // Use Vert.x implementations Future and Promise instead of callbacks
+    // Future: an object that represents the result of an action that may or may not have
+    // occurred yet.
+    // Promise: "the writeable side of an action that may or may not have occurred yet"
+
+    // Promise variable to hold consumer records
     Promise<KafkaConsumerRecords<String, JsonObject>> pollPromise = Promise.promise();
+    // Start polling
     consumer.poll(Duration.ofMillis(POLL_MS), pollPromise);
 
-    pollPromise.future().compose(records -> {
-      List<Future<UpdateResult>> futures =
-        IntStream.range(0, records.size()).mapToObj(records::recordAt)
-                 .map(record -> persist(jdbc, record)).collect(toList());
-
-      return CompositeFuture.all(new ArrayList<>(futures));
-    }).compose(composite -> {
-      Promise<Void> commitPromise = Promise.promise();
-      consumer.commit(commitPromise);
-      return commitPromise.future();
-    }).onSuccess(any -> {
-      System.out.println("All messages persisted and committed");
-      poll(jdbc, consumer);
-    }).onFailure(cause -> System.err.println("Error persisting and committing messages: " + cause));
+    //
+    pollPromise.future()
+               // compose: async map operation
+               .compose(records -> {
+                 List<Future<UpdateResult>> futures = IntStream
+                   .range(0, records.size())
+                   .mapToObj(records::recordAt)
+                   // Store records in DB
+                   .map(record -> persist(jdbc, record)).collect(toList());
+                 // CompositeFuture: Handles multiple future results at the same time
+                 return CompositeFuture
+                    // Wait on all the futures to resolve
+                    .all(new ArrayList<>(futures));
+               })
+               .compose(composite -> {
+                 Promise<Void> commitPromise = Promise.promise();
+                 consumer.commit(commitPromise);
+                 return commitPromise.future();
+               })
+               .onSuccess(any -> {
+                 System.out.println("All messages persisted and committed");
+                 poll(jdbc, consumer); // WHY??
+               })
+               .onFailure(cause -> System.err.println("Error persisting and committing messages: " + cause));
   }
 
   private Future<UpdateResult> persist(JDBCClient jdbc,
                                        KafkaConsumerRecord<String, JsonObject> record) {
     Promise<UpdateResult> promise = Promise.promise();
     JsonArray params = toParams(record);
-    jdbc.updateWithParams("insert or update query to persist record", params, promise);
+    jdbc.updateWithParams("", params, promise);
     return promise.future();
   }
 
