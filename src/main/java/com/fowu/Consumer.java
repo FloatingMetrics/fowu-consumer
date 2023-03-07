@@ -30,7 +30,7 @@ public class Consumer {
                             KafkaConsumerRecord<String, JsonObject> record = records.recordAt(i);
                             System.out.println(
                               "key=" + record.key() + ",value=" + record.value() + ",partition=" +
-                              record.partition() + ",offset=" + record.offset());
+                              record.partition() + ",timestamp=" + record.timestamp() + ",offset=" + record.offset());
                           }
                         }).onFailure(cause -> {
                           System.out.println(
