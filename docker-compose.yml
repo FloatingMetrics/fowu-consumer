@@ -15,3 +15,6 @@ services:
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
   consumer:
     build: .
+    image: kafka-consumer/consumer:latest
+    depends_on:
+      - kafka
