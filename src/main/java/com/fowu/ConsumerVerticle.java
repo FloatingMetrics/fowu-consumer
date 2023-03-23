@@ -30,6 +30,7 @@ public class ConsumerVerticle extends AbstractVerticle {
     // Let's poll every second
     vertx.setPeriodic(TIME_OUT_MS,
                       timerId -> consumer.poll(Duration.ofMillis(POLL_MS)).onSuccess(records -> {
+//                        System.out.println("On success, " + "records size:" + records.size());
                         for (int i = 0; i < records.size(); i++) {
                           KafkaConsumerRecord<String, JsonObject> record = records.recordAt(i);
                           System.out.println(
