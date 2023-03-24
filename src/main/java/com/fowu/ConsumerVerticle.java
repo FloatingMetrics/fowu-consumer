@@ -23,6 +23,7 @@ import static java.util.stream.Collectors.toList;
 
 public class ConsumerVerticle extends AbstractVerticle {
   private final String topicName = "weather";
+  private final int TIME_OUT_MS = 1000;
   private final int POLL_MS = 100;
 
   @Override
@@ -34,11 +35,12 @@ public class ConsumerVerticle extends AbstractVerticle {
 
     consumer.subscribe(topicName).onSuccess(v -> {
       System.out.println("Consumer subscribed");
-      poll(jdbc, consumer);
+      poll(consumer);
+//      pollAndPersistData(jdbc, consumer);
     });
   }
 
-  private void poll(JDBCClient jdbc, KafkaConsumer<String, JsonObject> consumer) {
+  private void pollAndPersistData(JDBCClient jdbc, KafkaConsumer<String, JsonObject> consumer) {
     // Use Vert.x implementations Future and Promise instead of callbacks
     // Future: an object that represents the result of an action that may or may not have
     // occurred yet.
@@ -70,7 +72,7 @@ public class ConsumerVerticle extends AbstractVerticle {
                })
                .onSuccess(any -> {
                  System.out.println("All messages persisted and committed");
-                 poll(jdbc, consumer); // WHY??
+                 pollAndPersistData(jdbc, consumer); // WHY??
                })
                .onFailure(cause -> System.err.println("Error persisting and committing messages: " + cause));
   }
@@ -86,5 +88,23 @@ public class ConsumerVerticle extends AbstractVerticle {
   private JsonArray toParams(KafkaConsumerRecord<String, JsonObject> record) {
     // TODO: convert the record into params for the sql command
     return null;
+  }
+
+  private void poll(KafkaConsumer<String, JsonObject> consumer) {
+    vertx.setPeriodic(TIME_OUT_MS,
+                      timerId -> consumer.poll(Duration.ofMillis(POLL_MS)).onSuccess(records -> {
+                        for (int i = 0; i < records.size(); i++) {
+                          KafkaConsumerRecord<String, JsonObject> record = records.recordAt(i);
+                          System.out.println(
+                            "key=" + record.key() + ",value=" + record.value() + ",partition=" +
+                            record.partition() + ",timestamp=" + record.timestamp() + ",offset=" + record.offset());
+                        }
+                      }).onFailure(cause -> {
+                        System.out.println(
+                          "Something went wrong when polling " + cause.toString());
+                        cause.printStackTrace();
+
+                        vertx.cancelTimer(timerId);
+                      }));
   }
 }
