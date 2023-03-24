@@ -43,6 +43,7 @@ public class PropertiesHelper {
 
   public static JsonObject getDatasourceProperties() {
     return new JsonObject()
+
       .put("jdbcUrl", "jdbc:mysql://mysql:3306/fowu")
       .put("datasourceName", "pool-name")
       .put("username", "fowu_user")
