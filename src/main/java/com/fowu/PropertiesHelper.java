@@ -43,10 +43,11 @@ public class PropertiesHelper {
 
   public static JsonObject getDatasourceProperties() {
     return new JsonObject()
-      .put("jdbcUrl", "jdbc:h2:mem:test")
+
+      .put("jdbcUrl", "jdbc:mysql://mysql:3306/fowu")
       .put("datasourceName", "pool-name")
-      .put("username", "fowu")
-      .put("password", "fowu")
+      .put("username", "fowu_user")
+      .put("password", "1234")
       .put("max_pool_size", 16);
   }
 
