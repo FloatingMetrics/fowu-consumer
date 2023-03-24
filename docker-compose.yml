@@ -32,6 +32,24 @@ services:
       - kafka
     networks:
       - kafka_consumer_network
+
+  mysql:
+    # *-----------------------------*
+    # To connect to the DB:
+    #   docker exec -it mysql bash -c 'mysql -u root -p$MYSQL_ROOT_PASSWORD'
+    # *-----------------------------*
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=1234
+      - MYSQL_USER=fowu_user
+      - MYSQL_PASSWORD=1234
+    volumes:
+      - ${PWD}/data/mysql:/docker-entrypoint-initdb.d
+      - ${PWD}/data:/data
+    networks:
+      kafka_consumer_network:
+
 networks:
   kafka_consumer_network:
     name: kafka_consumer_network
