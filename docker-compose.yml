@@ -8,14 +8,14 @@ services:
       - ZOO_SERVERS=0.0.0.0:2888:3888
       - ALLOW_ANONYMOUS_LOGIN=yes
     networks:
-      - kafka_network
+      - kafka_consumer_network
   kafka:
     image: bitnami/kafka
     container_name: kafka_consumer
     ports:
       - "9092:9092"
     networks:
-      - kafka_network
+      - kafka_consumer_network
     environment:
       - KAFKA_BROKER_ID=1
       - ALLOW_PLAINTEXT_LISTENER=yes
@@ -31,8 +31,8 @@ services:
     depends_on:
       - kafka
     networks:
-      - kafka_network
+      - kafka_consumer_network
 networks:
-  kafka_network:
-    name: kafka_network
+  kafka_consumer_network:
+    name: kafka_consumer_network
 #    external: true
