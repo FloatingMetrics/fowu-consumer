@@ -43,7 +43,7 @@ public class PropertiesHelper {
 
   public static JsonObject getDatasourceProperties() {
     return new JsonObject()
-      .put("jdbcUrl", "jdbc:h2:~/test")
+      .put("jdbcUrl", "jdbc:h2:mem:test")
       .put("datasourceName", "pool-name")
       .put("username", "fowu")
       .put("password", "fowu")

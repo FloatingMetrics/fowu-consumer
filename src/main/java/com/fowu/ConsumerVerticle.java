@@ -1,24 +1,14 @@
 package com.fowu;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.CompositeFuture;
-import io.vertx.core.Future;
-import io.vertx.core.Promise;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.jdbc.JDBCClient;
-import io.vertx.ext.sql.UpdateResult;
+import io.vertx.jdbcclient.JDBCPool;
 import io.vertx.kafka.client.consumer.KafkaConsumer;
 import io.vertx.kafka.client.consumer.KafkaConsumerRecord;
-import io.vertx.kafka.client.consumer.KafkaConsumerRecords;
+import io.vertx.sqlclient.Tuple;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
-import java.util.stream.IntStream;
-
-import static java.util.stream.Collectors.toList;
 
 
 public class ConsumerVerticle extends AbstractVerticle {
@@ -26,68 +16,26 @@ public class ConsumerVerticle extends AbstractVerticle {
   private final int TIME_OUT_MS = 1000;
   private final int POLL_MS = 100;
 
+
   @Override
   public void start() throws Exception {
+
     Properties props = PropertiesHelper.getProperties();
     KafkaConsumer<String, JsonObject> consumer = KafkaConsumer.create(vertx, props);
-    JsonObject datasourceConfig = PropertiesHelper.getDatasourceProperties();
-    JDBCClient jdbc = JDBCClient.create(vertx, datasourceConfig);
 
-    consumer.subscribe(topicName).onSuccess(v -> {
-      System.out.println("Consumer subscribed");
-      poll(consumer);
-//      pollAndPersistData(jdbc, consumer);
-    });
+
+    consumer.subscribe(topicName)
+            .onSuccess(v -> {
+                System.out.println("Consumer subscribed");
+                poll(consumer);
+          //      pollAndPersistData(jdbc, consumer);
+            })
+            .onFailure(cause -> System.err.println("Error cannot subscribe to topic: " + cause));
   }
 
-  private void pollAndPersistData(JDBCClient jdbc, KafkaConsumer<String, JsonObject> consumer) {
-    // Use Vert.x implementations Future and Promise instead of callbacks
-    // Future: an object that represents the result of an action that may or may not have
-    // occurred yet.
-    // Promise: "the writeable side of an action that may or may not have occurred yet"
-
-    // Promise variable to hold consumer records
-    Promise<KafkaConsumerRecords<String, JsonObject>> pollPromise = Promise.promise();
-    // Start polling
-    consumer.poll(Duration.ofMillis(POLL_MS), pollPromise);
-
-    //
-    pollPromise.future()
-               // compose: async map operation
-               .compose(records -> {
-                 List<Future<UpdateResult>> futures = IntStream
-                   .range(0, records.size())
-                   .mapToObj(records::recordAt)
-                   // Store records in DB
-                   .map(record -> persist(jdbc, record)).collect(toList());
-                 // CompositeFuture: Handles multiple future results at the same time
-                 return CompositeFuture
-                   // Wait on all the futures to resolve
-                   .all(new ArrayList<>(futures));
-               })
-               .compose(composite -> {
-                 Promise<Void> commitPromise = Promise.promise();
-                 consumer.commit(commitPromise);
-                 return commitPromise.future();
-               })
-               .onSuccess(any -> {
-                 System.out.println("All messages persisted and committed");
-                 pollAndPersistData(jdbc, consumer); // WHY??
-               })
-               .onFailure(cause -> System.err.println("Error persisting and committing messages: " + cause));
-  }
-
-  private Future<UpdateResult> persist(JDBCClient jdbc,
-                                       KafkaConsumerRecord<String, JsonObject> record) {
-    Promise<UpdateResult> promise = Promise.promise();
-    JsonArray params = toParams(record);
-    jdbc.updateWithParams("", params, promise);
-    return promise.future();
-  }
-
-  private JsonArray toParams(KafkaConsumerRecord<String, JsonObject> record) {
+  private Weather toParams(KafkaConsumerRecord<String, JsonObject> record) {
     // TODO: convert the record into params for the sql command
-    return null;
+    return record.value().mapTo(Weather.class);
   }
 
   private void poll(KafkaConsumer<String, JsonObject> consumer) {
@@ -98,6 +46,32 @@ public class ConsumerVerticle extends AbstractVerticle {
                           System.out.println(
                             "key=" + record.key() + ",value=" + record.value() + ",partition=" +
                             record.partition() + ",timestamp=" + record.timestamp() + ",offset=" + record.offset());
+
+                          Weather weather = toParams(record);
+                          JsonObject datasourceConfig = PropertiesHelper.getDatasourceProperties();
+                          JDBCPool pool = JDBCPool.pool(vertx, datasourceConfig);
+                          String query = "INSERT INTO test (time, waveHeight, wavePeriod, waveDirection, windSpeed, windDirection) values (?, ?, ?, ?, ?, ?)";
+                            pool
+                                .getConnection()
+                                .onFailure(e -> {
+                                    System.out.println("failed to get a connection");
+                                })
+                                .onSuccess(conn -> {
+                                    conn
+                                        .preparedQuery(query)
+                                        .execute(Tuple.of(weather.getTime(), weather.getWaveHeight(), weather.getWavePeriod(), weather.getWaveDirection(), weather.getWindSpeed(), weather.getWindDirection()))
+                                        .onFailure(e -> {
+                                            // handle the failure
+
+                                            conn.close();
+                                        })
+                                        .onSuccess(rows -> {
+                                            System.out.println("successfully added row " + weather.getTime());
+
+                                            conn.close();
+                                        });
+                                });
+
                         }
                       }).onFailure(cause -> {
                         System.out.println(
