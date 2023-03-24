@@ -50,23 +50,25 @@ public class ConsumerVerticle extends AbstractVerticle {
                           Weather weather = toParams(record);
                           JsonObject datasourceConfig = PropertiesHelper.getDatasourceProperties();
                           JDBCPool pool = JDBCPool.pool(vertx, datasourceConfig);
-                          String query = "INSERT INTO test (time, waveHeight, wavePeriod, waveDirection, windSpeed, windDirection) values (?, ?, ?, ?, ?, ?)";
+                          String query = "INSERT INTO weather (captureTime, waveHeight, " +
+                                         "wavePeriod, " +
+                                         "waveDirection, windSpeed, windDirection) values (?, ?, ?, ?, ?, ?)";
                             pool
                                 .getConnection()
                                 .onFailure(e -> {
-                                    System.out.println("failed to get a connection");
+                                    System.out.println("failed to get a connection: " + e);
                                 })
                                 .onSuccess(conn -> {
                                     conn
                                         .preparedQuery(query)
-                                        .execute(Tuple.of(weather.getTime(), weather.getWaveHeight(), weather.getWavePeriod(), weather.getWaveDirection(), weather.getWindSpeed(), weather.getWindDirection()))
+                                        .execute(Tuple.of(weather.getCaptureTime(), weather.getWaveHeight(), weather.getWavePeriod(), weather.getWaveDirection(), weather.getWindSpeed(), weather.getWindDirection()))
                                         .onFailure(e -> {
                                             // handle the failure
 
                                             conn.close();
                                         })
                                         .onSuccess(rows -> {
-                                            System.out.println("successfully added row " + weather.getTime());
+                                            System.out.println("successfully added row " + weather.getCaptureTime());
 
                                             conn.close();
                                         });
