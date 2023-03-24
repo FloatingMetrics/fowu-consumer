@@ -1,5 +1,7 @@
 package com.fowu;
 
+import io.vertx.core.json.JsonObject;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -37,6 +39,15 @@ public class PropertiesHelper {
     }
 
     return props;
+  }
+
+  public static JsonObject getDatasourceProperties() {
+    return new JsonObject()
+      .put("jdbcUrl", "jdbc:h2:~/test")
+      .put("datasourceName", "pool-name")
+      .put("username", "fowu")
+      .put("password", "fowu")
+      .put("max_pool_size", 16);
   }
 
 }
