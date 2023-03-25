@@ -37,7 +37,6 @@ public class PropertiesHelper {
     } catch (IOException e) {
       e.printStackTrace();
     }
-
     return props;
   }
 
@@ -49,7 +48,6 @@ public class PropertiesHelper {
       props.put("username", "fowu_user");
       props.put("password", "1234");
       props.put("max_pool_size", 16);
-
       return props;
   }
 

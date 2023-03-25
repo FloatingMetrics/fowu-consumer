@@ -23,7 +23,6 @@ public class ConsumerVerticle extends AbstractVerticle {
     Properties props = PropertiesHelper.getProperties();
     KafkaConsumer<String, JsonObject> consumer = KafkaConsumer.create(vertx, props);
 
-
     consumer.subscribe(topicName)
             .onSuccess(v -> {
                 System.out.println("Consumer subscribed");
@@ -34,7 +33,6 @@ public class ConsumerVerticle extends AbstractVerticle {
   }
 
   private Weather toParams(KafkaConsumerRecord<String, JsonObject> record) {
-    // TODO: convert the record into params for the sql command
     return record.value().mapTo(Weather.class);
   }
 
@@ -50,7 +48,9 @@ public class ConsumerVerticle extends AbstractVerticle {
                           Weather weather = toParams(record);
                           JsonObject datasourceConfig = PropertiesHelper.getDatasourceProperties();
                           JDBCPool pool = JDBCPool.pool(vertx, datasourceConfig);
-                          String query = "INSERT INTO test (time, waveHeight, wavePeriod, waveDirection, windSpeed, windDirection) values (?, ?, ?, ?, ?, ?)";
+                          String query = "INSERT INTO weather (captureTime, waveHeight, " +
+                                         "wavePeriod, " +
+                                         "waveDirection, windSpeed, windDirection) values (?, ?, ?, ?, ?, ?)";
                             pool
                                 .getConnection()
                                 .onFailure(e -> {
@@ -59,19 +59,16 @@ public class ConsumerVerticle extends AbstractVerticle {
                                 .onSuccess(conn -> {
                                     conn
                                         .preparedQuery(query)
-                                        .execute(Tuple.of(weather.getTime(), weather.getWaveHeight(), weather.getWavePeriod(), weather.getWaveDirection(), weather.getWindSpeed(), weather.getWindDirection()))
+                                        .execute(Tuple.of(weather.getCaptureTime(), weather.getWaveHeight(), weather.getWavePeriod(), weather.getWaveDirection(), weather.getWindSpeed(), weather.getWindDirection()))
                                         .onFailure(e -> {
-                                            // handle the failure
-
+                                            System.out.println("failed to execute query: " + e.toString());
                                             conn.close();
                                         })
                                         .onSuccess(rows -> {
-                                            System.out.println("successfully added row " + weather.getTime());
-
+                                            System.out.println("successfully added row " + weather.getCaptureTime());
                                             conn.close();
                                         });
                                 });
-
                         }
                       }).onFailure(cause -> {
                         System.out.println(
