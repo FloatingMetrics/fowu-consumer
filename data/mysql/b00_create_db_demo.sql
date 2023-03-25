@@ -2,6 +2,8 @@ create database fowu;
 
 GRANT  CREATE, ALTER, DROP, SELECT, INSERT, UPDATE, DELETE ON fowu.* TO fowu_user;
 
+USE fowu
+
 CREATE TABLE weather (
                          time varchar(150),
                          waveHeight double,
@@ -11,3 +13,4 @@ CREATE TABLE weather (
                          windDirection int,
                          PRIMARY KEY (time)
 );
+

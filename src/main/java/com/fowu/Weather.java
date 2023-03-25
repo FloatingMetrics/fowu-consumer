@@ -13,6 +13,8 @@ public class Weather {
         double windSpeed;
         int windDirection;
 
+        public Weather() {}
+
         public Weather(double waveHeight, double wavePeriod, int waveDirection, double windSpeed, int windDirection) {
 
             LocalDateTime localDateTime = LocalDateTime.now();

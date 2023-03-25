@@ -47,6 +47,8 @@ services:
     volumes:
       - ${PWD}/data/mysql:/docker-entrypoint-initdb.d
       - ${PWD}/data:/data
+    networks:
+      - kafka_network
 
 networks:
   kafka_network:

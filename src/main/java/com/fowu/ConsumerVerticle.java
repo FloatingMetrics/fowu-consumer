@@ -54,7 +54,7 @@ public class ConsumerVerticle extends AbstractVerticle {
                             pool
                                 .getConnection()
                                 .onFailure(e -> {
-                                    System.out.println("failed to get a connection");
+                                    System.out.println("failed to get a connection: " + e.toString());
                                 })
                                 .onSuccess(conn -> {
                                     conn
