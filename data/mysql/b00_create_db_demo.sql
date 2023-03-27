@@ -14,3 +14,4 @@ CREATE TABLE weather
   windDirection int,
   PRIMARY KEY (captureTime)
 );
+
