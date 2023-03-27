@@ -43,20 +43,11 @@ public class PropertiesHelper {
   public static JsonObject getDatasourceProperties() {
     JsonObject props = new JsonObject();
 
-    // props.put("url", "jdbc:mysql://mysql:3306/fowu");
-    // props.put("datasourceName", "fowu");
-    // props.put("username", "fowu_user");
-    // props.put("password", "1234");
-    // props.put("max_pool_size", 16);
-
-    props.put("url", "jdbc:sqlserver://fowu-database-server.database.windows.net:1433");
-    props.put("database", "fowu-database");
-    props.put("user", "fowu-server-access@fowu-database-server");
-    props.put("password", "Therese1");
-    props.put("encrypt", "true");
-    props.put("trustServerCertificate", "false");
-    props.put("hostNameCertifcate", "*.database.windows.net");
-    props.put("loginTimeout", "30");
+    props.put("url", "jdbc:mysql://mysql:3306/fowu");
+    props.put("datasourceName", "fowu");
+    props.put("username", "fowu_user");
+    props.put("password", "1234");
+    props.put("max_pool_size", 16);
 
     return props;
   }
