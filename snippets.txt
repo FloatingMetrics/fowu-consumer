@@ -1,0 +1,10 @@
+
+#azure connection JDBC string
+jdbc:sqlserver://fowu-database-server.database.windows.net:1433;
+database=fowu-database;
+user=fowu-server-access@fowu-database-server;
+password=Therese1;
+encrypt=true;
+trustServerCertificate=false;
+hostNameInCertificate=*.database.windows.net;
+loginTimeout=30;
