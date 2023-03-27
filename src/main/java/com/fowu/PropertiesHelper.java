@@ -53,9 +53,9 @@ public class PropertiesHelper {
     props.put("database", "fowu-database");
     props.put("user", "fowu-server-access@fowu-database-server");
     props.put("password", "Therese1");
-    props.put("encrypt", "true");
+    props.put("encrypt", "false");
     props.put("trustServerCertificate", "false");
-    props.put("hostNameCertifcate", "*.database.windows.net");
+    props.put("hostNameInCertificate", "*.database.windows.net");
     props.put("loginTimeout", "30");
 
     return props;
