@@ -1,5 +1,7 @@
 package com.fowu;
 
+import io.vertx.core.json.JsonObject;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -35,8 +37,18 @@ public class PropertiesHelper {
     } catch (IOException e) {
       e.printStackTrace();
     }
-
     return props;
+  }
+
+  public static JsonObject getDatasourceProperties() {
+      JsonObject props = new JsonObject();
+
+      props.put("url", "jdbc:mysql://mysql:3306/fowu");
+      props.put("datasourceName", "fowu");
+      props.put("username", "fowu_user");
+      props.put("password", "1234");
+      props.put("max_pool_size", 16);
+      return props;
   }
 
 }

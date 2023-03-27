@@ -8,14 +8,14 @@ services:
 #      - ZOO_SERVERS=0.0.0.0:2888:3888
 #      - ALLOW_ANONYMOUS_LOGIN=yes
 #    networks:
-#      - kafka_network
+#      - kafka_consumer_network
 #  kafka:
 #    image: bitnami/kafka
 #    container_name: kafka_consumer
 #    ports:
 #      - "9092:9092"
 #    networks:
-#      - kafka_network
+#      - kafka_consumer_network
 #    environment:
 #      - KAFKA_BROKER_ID=1
 #      - ALLOW_PLAINTEXT_LISTENER=yes
@@ -32,6 +32,24 @@ services:
 #      - kafka
     networks:
       - kafka_network
+
+  mysql:
+    # *-----------------------------*
+    # To connect to the DB:
+    #   docker exec -it mysql bash -c 'mysql -u root -p$MYSQL_ROOT_PASSWORD'
+    # *-----------------------------*
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=1234
+      - MYSQL_USER=fowu_user
+      - MYSQL_PASSWORD=1234
+    volumes:
+      - ${PWD}/data/mysql:/docker-entrypoint-initdb.d
+      - ${PWD}/data:/data
+    networks:
+      - kafka_network
+
 networks:
   kafka_network:
     name: kafka_network
