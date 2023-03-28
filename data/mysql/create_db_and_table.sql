@@ -2,9 +2,10 @@ CREATE DATABASE IF NOT EXISTS fowudatabase;
 
 USE fowudatabase;
 
-CREATE TABLE IF NOT EXISTS weather
+DROP TABLE IF EXISTS weather;
+CREATE TABLE weather
 (
-  captureTime   varchar(150),
+  captureTime   int,
   waveHeight    double,
   wavePeriod    double,
   waveDirection int,
