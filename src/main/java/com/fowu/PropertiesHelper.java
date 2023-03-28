@@ -43,13 +43,12 @@ public class PropertiesHelper {
   public static JsonObject getDatasourceProperties() {
     JsonObject props = new JsonObject();
 
-    props.put("url", "jdbc:mysql://mysql:3306/fowu");
-    props.put("datasourceName", "fowu");
-    props.put("username", "fowu_user");
-    props.put("password", "1234");
-    props.put("max_pool_size", 16);
-
-    return props;
+      props.put("url", "jdbc:mysql://mysql:3306/fowudatabase");
+      props.put("datasourceName", "fowudatabase");
+      props.put("username", "fowu_user");
+      props.put("password", "1234");
+      props.put("max_pool_size", 16);
+      return props;
   }
 
 }

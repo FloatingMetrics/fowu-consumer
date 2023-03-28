@@ -1,8 +1,8 @@
-create database fowu;
+CREATE DATABASE IF NOT EXISTS fowudatabase;
 
-USE fowu;
+USE fowudatabase;
 
-CREATE TABLE weather
+CREATE TABLE IF NOT EXISTS weather
 (
   captureTime   varchar(150),
   waveHeight    double,

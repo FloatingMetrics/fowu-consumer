@@ -33,6 +33,27 @@ services:
     networks:
       - kafka_network
 
+  grafana:
+    image: grafana/grafana:8.2.6
+    container_name: grafana
+    links:
+      - mysql
+    volumes:
+      - ${PWD}/grafana:/var/lib/grafana
+    environment:
+      - GF_DATABASE_HOST=mysql:3306
+      - GF_DATABASE_NAME=fowudatabase
+      - GF_DATABASE_USER=fowu_user
+      - GF_DATABASE_PASSWORD=1234
+      - GF_DATABASE_TYPE=mysql
+      - GF_DATABASE_MAX_OPEN_CONN=300
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql
+    networks:
+      - kafka_network
+
   mysql:
     # *-----------------------------*
     # To connect to the DB:
@@ -44,6 +65,7 @@ services:
       - "3307:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=1234
+      - MYSQL_DATABASE=fowudatabase
       - MYSQL_USER=fowu_user
       - MYSQL_PASSWORD=1234
     volumes:
