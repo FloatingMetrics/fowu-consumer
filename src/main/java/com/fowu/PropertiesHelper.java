@@ -43,8 +43,8 @@ public class PropertiesHelper {
   public static JsonObject getDatasourceProperties() {
     JsonObject props = new JsonObject();
 
-    props.put("url", "jdbc:sqlserver://fowu.database.windows.net:1433");
-    props.put("database", "fowu-database");
+    props.put("url", "jdbc:sqlserver://fowu.database.windows.net:1433;databaseName=fowudatabase");
+    // props.put("database", "fowu-database");
     props.put("user", "fowu-server-access@fowu");
     props.put("password", "Therese1");
     props.put("encrypt", "true");
