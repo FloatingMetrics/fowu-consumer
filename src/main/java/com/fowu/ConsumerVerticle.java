@@ -10,7 +10,6 @@ import io.vertx.sqlclient.Tuple;
 import java.time.Duration;
 import java.util.Properties;
 
-
 public class ConsumerVerticle extends AbstractVerticle {
   private final String topicName = "weather";
   private final int TIME_OUT_MS = 1000;

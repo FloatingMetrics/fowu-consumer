@@ -50,7 +50,8 @@ public class PropertiesHelper {
     props.put("trustServerCertificate", "false");
     props.put("hostNameInCertificate", "*.database.windows.net");
     props.put("loginTimeout", "30");
-
+    props.put("com.mchange.v2.log.MLog", "com.mchange.v2.log.log4j.Log4jMLog");
+    
     return props;
   }
 
