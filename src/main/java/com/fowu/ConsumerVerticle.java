@@ -26,7 +26,6 @@ public class ConsumerVerticle extends AbstractVerticle {
             .onSuccess(v -> {
                 System.out.println("Consumer subscribed");
                 poll(consumer);
-          //      pollAndPersistData(jdbc, consumer);
             })
             .onFailure(cause -> System.err.println("Error cannot subscribe to topic: " + cause));
   }
