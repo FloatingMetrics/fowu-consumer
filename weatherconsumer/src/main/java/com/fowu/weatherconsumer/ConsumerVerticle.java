@@ -1,6 +1,6 @@
 package com.fowu.weatherconsumer;
 
-import com.fowu.common.*;
+import com.fowu.common.PropertiesHelper;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.json.JsonObject;
 import io.vertx.jdbcclient.JDBCPool;
@@ -20,12 +20,13 @@ public class ConsumerVerticle extends AbstractVerticle {
   @Override
   public void start() throws Exception {
 
-    Properties props = PropertiesHelper.getProperties();
+    Properties props = WeatherConfig.getWeatherProperties();
     KafkaConsumer<String, JsonObject> consumer = KafkaConsumer.create(vertx, props);
 
     consumer.subscribe(topicName)
             .onSuccess(v -> {
-              System.out.println("Consumer subscribed");
+              System.out.println("Consumer subscribed to topic: " + topicName);
+              System.out.println("Properties: " + props);
               poll(consumer);
             })
             .onFailure(cause -> System.err.println("Error cannot subscribe to topic: " + cause));
@@ -36,6 +37,7 @@ public class ConsumerVerticle extends AbstractVerticle {
   }
 
   private void poll(KafkaConsumer<String, JsonObject> consumer) {
+
     vertx.setPeriodic(TIME_OUT_MS,
                       timerId -> consumer.poll(Duration.ofMillis(POLL_MS)).onSuccess(records -> {
                         for (int i = 0; i < records.size(); i++) {
