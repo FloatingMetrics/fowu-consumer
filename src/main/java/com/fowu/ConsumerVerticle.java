@@ -24,8 +24,8 @@ public class ConsumerVerticle extends AbstractVerticle {
 
     consumer.subscribe(topicName)
             .onSuccess(v -> {
-                System.out.println("Consumer subscribed");
-                poll(consumer);
+              System.out.println("Consumer subscribed");
+              poll(consumer);
             })
             .onFailure(cause -> System.err.println("Error cannot subscribe to topic: " + cause));
   }
@@ -46,27 +46,29 @@ public class ConsumerVerticle extends AbstractVerticle {
                           Weather weather = toParams(record);
                           JsonObject datasourceConfig = PropertiesHelper.getDatasourceProperties();
                           JDBCPool pool = JDBCPool.pool(vertx, datasourceConfig);
-                          String query = "INSERT INTO weather (captureTime, waveHeight, " +
-                                         "wavePeriod, " +
+                          String query = "INSERT INTO weather (captureTime, waveHeight, wavePeriod, " +
                                          "waveDirection, windSpeed, windDirection) values (?, ?, ?, ?, ?, ?)";
-                            pool
-                                .getConnection()
+                          pool
+                            .getConnection()
+                            .onFailure(e -> {
+                              System.out.println("failed to get a connection: " + e.toString());
+                            })
+                            .onSuccess(conn -> {
+                              conn
+                                .preparedQuery(query)
+                                .execute(
+                                  Tuple.of(weather.getCaptureTime(), weather.getWaveHeight(), weather.getWavePeriod(),
+                                           weather.getWaveDirection(), weather.getWindSpeed(),
+                                           weather.getWindDirection()))
                                 .onFailure(e -> {
-                                    System.out.println("failed to get a connection: " + e.toString());
+                                  System.out.println("failed to execute query: " + e.toString());
+                                  conn.close();
                                 })
-                                .onSuccess(conn -> {
-                                    conn
-                                        .preparedQuery(query)
-                                        .execute(Tuple.of(weather.getCaptureTime(), weather.getWaveHeight(), weather.getWavePeriod(), weather.getWaveDirection(), weather.getWindSpeed(), weather.getWindDirection()))
-                                        .onFailure(e -> {
-                                            System.out.println("failed to execute query: " + e.toString());
-                                            conn.close();
-                                        })
-                                        .onSuccess(rows -> {
-                                            System.out.println("successfully added row " + weather.getCaptureTime());
-                                            conn.close();
-                                        });
+                                .onSuccess(rows -> {
+                                  System.out.println("successfully added row " + weather.getCaptureTime());
+                                  conn.close();
                                 });
+                            });
                         }
                       }).onFailure(cause -> {
                         System.out.println(
