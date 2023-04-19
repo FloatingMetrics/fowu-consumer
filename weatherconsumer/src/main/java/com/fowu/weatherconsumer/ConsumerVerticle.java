@@ -7,6 +7,7 @@ import io.vertx.jdbcclient.JDBCPool;
 import io.vertx.kafka.client.consumer.KafkaConsumer;
 import io.vertx.kafka.client.consumer.KafkaConsumerRecord;
 import io.vertx.sqlclient.Tuple;
+import org.apache.kafka.common.TopicPartition;
 
 import java.time.Duration;
 import java.util.Properties;
@@ -26,7 +27,7 @@ public class ConsumerVerticle extends AbstractVerticle {
     consumer.subscribe(topicName)
             .onSuccess(v -> {
               System.out.println("Consumer subscribed to topic: " + topicName);
-              System.out.println("Properties: " + props);
+              System.out.println("Custom properties: " + props);
               poll(consumer);
             })
             .onFailure(cause -> System.err.println("Error cannot subscribe to topic: " + cause));
