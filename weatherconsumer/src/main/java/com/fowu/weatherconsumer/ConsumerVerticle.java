@@ -1,5 +1,6 @@
-package com.fowu;
+package com.fowu.weatherconsumer;
 
+import com.fowu.common.*;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.json.JsonObject;
 import io.vertx.jdbcclient.JDBCPool;

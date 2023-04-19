@@ -1,4 +1,4 @@
-package com.fowu;
+package com.fowu.weatherconsumer;
 
 import io.vertx.core.Vertx;
 

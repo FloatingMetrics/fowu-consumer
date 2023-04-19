@@ -1,4 +1,4 @@
-package com.fowu;
+package com.fowu.common;
 
 import io.vertx.core.json.JsonObject;
 
@@ -13,17 +13,17 @@ import java.util.Properties;
 public class PropertiesHelper {
   /**
    * Gets a Properties object that contains the keys and values defined
-   * in the file src/main/resources/config.properties
+   * in the file src/main/resources/configuration.properties
    *
    * @return a {@link java.util.Properties} object
-   * @throws Exception Thrown if the file config.properties is not available
+   * @throws Exception Thrown if the file configuration.properties is not available
    *                   in the directory src/main/resources
    */
   public static Properties getProperties() throws Exception {
 
     Properties props = null;
     // try to load the file config.properties
-    try (InputStream input = ConsumerVerticle.class.getClassLoader().getResourceAsStream("configuration" +
+    try (InputStream input = PropertiesHelper.class.getClassLoader().getResourceAsStream("configuration" +
         ".properties")) {
 
       props = new Properties();
@@ -51,7 +51,7 @@ public class PropertiesHelper {
     props.put("hostNameInCertificate", "*.database.windows.net");
     props.put("loginTimeout", "30");
     props.put("com.mchange.v2.log.MLog", "com.mchange.v2.log.log4j.Log4jMLog");
-    
+
     return props;
   }
 

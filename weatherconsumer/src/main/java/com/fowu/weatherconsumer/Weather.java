@@ -1,7 +1,4 @@
-package com.fowu;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+package com.fowu.weatherconsumer;
 
 public class Weather {
   String captureTime;

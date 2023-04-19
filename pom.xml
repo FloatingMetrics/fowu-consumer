@@ -7,6 +7,7 @@
   <groupId>com.fowu</groupId>
   <artifactId>fowu-consumer</artifactId>
   <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -19,9 +20,14 @@
     <vertx.version>4.3.8</vertx.version>
     <junit-jupiter.version>5.9.1</junit-jupiter.version>
 
-    <main.verticle>com.fowu.ConsumerVerticle</main.verticle>
+<!--    <main.verticle>com.fowu.ConsumerVerticle</main.verticle>-->
     <launcher.class>io.vertx.core.Launcher</launcher.class>
   </properties>
+
+  <modules>
+    <module>common</module>
+    <module>weatherconsumer</module>
+  </modules>
 
   <dependencyManagement>
     <dependencies>
