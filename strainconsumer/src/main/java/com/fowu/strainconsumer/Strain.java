@@ -24,7 +24,7 @@ public class Strain {
   public String toString() {
     return "Strain{" +
            "captureTime=" + captureTime +
-           ", waveHeight=" + strain +
+           ", strain=" + strain +
            '}';
   }
 
