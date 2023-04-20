@@ -25,13 +25,24 @@ services:
 #      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=INTERNAL
 #      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
   weatherconsumer:
-    image: consumer:latest
+    image:   weatherconsumer:latest
     container_name: weather-consumer
     build:
       context: .
       dockerfile: ./weatherconsumer/Dockerfile
 #    depends_on:
 #      - kafka
+    networks:
+      - kafka_network
+
+  strainconsumer:
+    image: strainconsumer:latest
+    container_name: strain-consumer
+    build:
+      context: .
+      dockerfile: ./strainconsumer/Dockerfile
+    #    depends_on:
+    #      - kafka
     networks:
       - kafka_network
 
