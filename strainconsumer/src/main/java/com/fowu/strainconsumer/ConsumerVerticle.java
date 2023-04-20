@@ -43,10 +43,11 @@ public class ConsumerVerticle extends AbstractVerticle {
                         for (int i = 0; i < records.size(); i++) {
                           KafkaConsumerRecord<String, JsonObject> record = records.recordAt(i);
                           System.out.println(
-                            "key=" + record.key() + ",value=" + record.value() + ",partition=" +
-                            record.partition() + ",timestamp=" + record.timestamp() + ",offset=" + record.offset());
+                            "key=" + record.key() + ",value=" + record.value() +
+                            ",partition=" + record.partition() + ",timestamp=" + record.timestamp() + ",offset=" +
+                            record.offset());
 
-                          Strain strain = toParams(record);
+                          Strain strainData = toParams(record);
                           JsonObject datasourceConfig = PropertiesHelper.getDatasourceProperties();
                           JDBCPool pool = JDBCPool.pool(vertx, datasourceConfig);
                           String query = "INSERT INTO strain (captureTime, strain) values (?, ?)";
@@ -59,13 +60,13 @@ public class ConsumerVerticle extends AbstractVerticle {
                               conn
                                 .preparedQuery(query)
                                 .execute(
-                                  Tuple.of(strain.getCaptureTime(), strain.getStrain()))
+                                  Tuple.of(strainData.getCaptureTime(), strainData.getStrain()))
                                 .onFailure(e -> {
                                   System.out.println("failed to execute query: " + e.toString());
                                   conn.close();
                                 })
                                 .onSuccess(rows -> {
-                                  System.out.println("successfully added row " + strain.getCaptureTime());
+                                  System.out.println("successfully added row " + strainData.getCaptureTime());
                                   conn.close();
                                 });
                             });
