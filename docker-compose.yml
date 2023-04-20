@@ -24,8 +24,8 @@ services:
 #      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
 #      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=INTERNAL
 #      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
-  weatherconsumer:
-    image:   weatherconsumer:latest
+  weather-consumer:
+    image:   weather-consumer:latest
     container_name: weather-consumer
     build:
       context: .
@@ -35,8 +35,8 @@ services:
     networks:
       - kafka_network
 
-  strainconsumer:
-    image: strainconsumer:latest
+  strain-consumer:
+    image: strain-consumer:latest
     container_name: strain-consumer
     build:
       context: .
