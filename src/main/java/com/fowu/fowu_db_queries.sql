@@ -1,6 +1,7 @@
 USE fowudatabase;
 
--- CREATE TABLE strain (
+
+-- CREATE TABLE strain4 (
 --   captureTime VARCHAR(20) PRIMARY KEY NOT NULL,
 --   strain DOUBLE PRECISION
 -- );
@@ -11,13 +12,22 @@ USE fowudatabase;
 -- DELETE FROM weather;
 SELECT * FROM weather;
 
--- DELETE FROM strain;
--- SELECT * FROM strain;
+-- DELETE FROM strain1;
+-- DELETE FROM strain2;
+-- DELETE FROM strain3;
+-- DELETE FROM strain4;
+
+-- SELECT * FROM strain1;
+-- SELECT * FROM strain2;
+-- SELECT * FROM strain3;
+-- SELECT * FROM strain4;
 
 
 -- Describe table
 -- EXEC sp_help weather;
--- EXEC sp_help strain;
+-- EXEC sp_help strain1;
+-- EXEC sp_help strain2;
+-- EXEC sp_help strain3;
 
 -- SELECT
 -- CAST( captureTime AS TIME) AS "time"
