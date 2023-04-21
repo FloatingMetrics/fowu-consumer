@@ -10,9 +10,15 @@ USE fowudatabase;
 
 -- DELETE FROM weather;
 SELECT * FROM weather;
+
+-- DELETE FROM strain;
 -- SELECT * FROM strain;
 
 
 -- Describe table
 -- EXEC sp_help weather;
 -- EXEC sp_help strain;
+
+-- SELECT
+-- CAST( captureTime AS TIME) AS "time"
+-- FROM weather;
