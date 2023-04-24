@@ -24,22 +24,15 @@ public class ConsumerVerticle extends AbstractVerticle {
   public void start() throws Exception {
 
     Properties props = StrainConfig.getStrainProperties();
-    List<KafkaConsumer<String, JsonObject>> consumers = new ArrayList<>();
 
     for (int i = 0; i < NUMBER_OF_CONSUMERS; i++) {
       KafkaConsumer<String, JsonObject> consumer = KafkaConsumer.create(vertx, props);
-      consumers.add(consumer);
-    }
-
-    for (int i = 0; i < NUMBER_OF_CONSUMERS; i++) {
-      KafkaConsumer<String, JsonObject> consumer = consumers.get(i);
-      int consumerNum = i + 1;
 
       consumer.subscribe(topicName)
               .onSuccess(v -> {
                 System.out.println("Consumer subscribed to topic: " + topicName);
                 System.out.println("Custom properties: " + props);
-                poll(consumer, consumerNum);
+                poll(consumer);
               })
               .onFailure(cause -> System.err.println("Error cannot subscribe to topic: " + cause));
     }
@@ -49,7 +42,7 @@ public class ConsumerVerticle extends AbstractVerticle {
     return record.value().mapTo(Strain.class);
   }
 
-  private void poll(KafkaConsumer<String, JsonObject> consumer, int consumerNum) {
+  private void poll(KafkaConsumer<String, JsonObject> consumer) {
 
     vertx.setPeriodic(TIME_OUT_MS,
                       timerId -> consumer.poll(Duration.ofMillis(POLL_MS)).onSuccess(records -> {
@@ -63,7 +56,9 @@ public class ConsumerVerticle extends AbstractVerticle {
                           Strain strainData = toParams(record);
                           JsonObject datasourceConfig = PropertiesHelper.getDatasourceProperties();
                           JDBCPool pool = JDBCPool.pool(vertx, datasourceConfig);
-                          String query = "INSERT INTO strain" + consumerNum + " (captureTime, strain) values (?, ?)";
+
+                          String query = "INSERT INTO " + record.key() + " (captureTime, strain) values (?, ?);";
+
                           pool
                             .getConnection()
                             .onFailure(e -> {
@@ -76,6 +71,7 @@ public class ConsumerVerticle extends AbstractVerticle {
                                   Tuple.of(strainData.getCaptureTime(), strainData.getStrain()))
                                 .onFailure(e -> {
                                   System.out.println("failed to execute query: " + e.toString());
+                                  System.out.println(query);
                                   conn.close();
                                 })
                                 .onSuccess(rows -> {
